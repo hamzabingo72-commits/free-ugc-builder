@@ -34,7 +34,7 @@ export default function LandingPageGenerator() {
   const [resultHtml, setResultHtml] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const generateImage = async (ai: GoogleGenAI, prompt: string, imageBase64: string, mime: string) => {
+  const generateImage = async (ai: GoogleGenAI, prompt: string, imageBase64: string, mime: string, aspectRatio: '1:1' | '3:4' | '4:3' | '9:16' | '16:9' = '1:1') => {
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: {
@@ -44,7 +44,7 @@ export default function LandingPageGenerator() {
         ]
       },
       config: {
-        imageConfig: { aspectRatio: '1:1' }
+        imageConfig: { aspectRatio: aspectRatio }
       }
     });
 
@@ -74,15 +74,15 @@ export default function LandingPageGenerator() {
       if (selectedImage && mimeType) {
         setProgressText('جاري توليد 4 صور احترافية للمنتج (قد يستغرق بعض الوقت)...');
         
-        const prompts = [
-          `Professional lifestyle product photography of this product, high quality, 4k, well lit, placed in a luxurious setting suitable for the Gulf market.`,
-          `Close up lifestyle shot of this product being used or displayed, elegant background, 8k resolution, photorealistic.`,
-          `Product photography showing the product in action or held by a hand, natural lighting, highly detailed, cinematic.`,
-          `Aesthetically pleasing flatlay or creative composition of this product, premium look, suitable for Instagram ads.`
+        const imageTasks = [
+          { prompt: `Commercial product photography, wide shot, placed in a luxurious and modern setting, cinematic lighting, 8k resolution, highly detailed, perfect for a website hero banner.`, ratio: '16:9' as const },
+          { prompt: `Close-up macro shot of the product highlighting its premium texture and details, soft studio lighting, photorealistic, 4k.`, ratio: '1:1' as const },
+          { prompt: `Lifestyle photography, the product being used or displayed elegantly in a natural environment, bright and inviting, high-end commercial style.`, ratio: '1:1' as const },
+          { prompt: `Aesthetic flatlay composition of the product with complementary props, modern minimalist style, highly engaging, premium look, perfect for Instagram.`, ratio: '3:4' as const }
         ];
         
         generatedImages = await Promise.all(
-          prompts.map(p => generateImage(ai, p, selectedImage, mimeType).catch((e) => { console.error(e); return null; }))
+          imageTasks.map(t => generateImage(ai, t.prompt, selectedImage, mimeType, t.ratio).catch((e) => { console.error(e); return null; }))
         );
       }
 
@@ -130,8 +130,12 @@ Requirements:
 8. **SEO & Performance**:
    - Include comprehensive meta tags (title, description, viewport).
    - Add \`loading="lazy"\` to all images for fast loading.
-9. **Design & Layout**: Use Tailwind CSS via CDN. Ensure RTL layout (dir="rtl"). Include a sticky CTA button at the bottom of the screen for mobile devices that scrolls smoothly to the order form.
-${selectedImage ? `10. I have generated 4 lifestyle images for this product. You MUST use the exact strings \`{{GENERATED_IMAGE_1}}\`, \`{{GENERATED_IMAGE_2}}\`, \`{{GENERATED_IMAGE_3}}\`, and \`{{GENERATED_IMAGE_4}}\` as the \`src\` attributes for the product images across the page.` : `10. Include placeholder images (e.g., using https://picsum.photos) generously throughout the page.`}
+9. **Design, Layout & Responsiveness**: 
+   - Use Tailwind CSS via CDN. Ensure RTL layout (dir="rtl"). 
+   - **CRITICAL RESPONSIVENESS**: The page MUST look perfect on all devices (Mobile, Tablet, Desktop). Use Tailwind's responsive prefixes (e.g., \`flex-col md:flex-row\`, \`p-4 md:p-8\`, \`text-2xl md:text-5xl\`, \`w-full md:w-1/2\`). 
+   - Mobile view must be flawless with readable text, properly sized images, and touch-friendly buttons (min-height 44px).
+   - Include a sticky CTA button at the bottom of the screen ONLY for mobile devices (\`md:hidden\`) that scrolls smoothly to the order form.
+${selectedImage ? `10. I have generated 4 highly professional lifestyle images for this product with specific aspect ratios. You MUST use the exact strings \`{{GENERATED_IMAGE_1}}\` (16:9 Hero), \`{{GENERATED_IMAGE_2}}\` (1:1 Feature), \`{{GENERATED_IMAGE_3}}\` (1:1 Feature), and \`{{GENERATED_IMAGE_4}}\` (3:4 Gallery/Social) as the \`src\` attributes for the product images across the page.` : `10. Include placeholder images (e.g., using https://picsum.photos) generously throughout the page.`}
 11. Return ONLY valid HTML code starting with <!DOCTYPE html> and ending with </html>. Do not include markdown formatting like \`\`\`html.
       `;
 

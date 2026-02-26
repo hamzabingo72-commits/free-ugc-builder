@@ -13,9 +13,17 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'photo' | 'landing-page'>('photo');
 
   return (
-    <div className="flex h-screen bg-zinc-50 text-zinc-900 font-sans">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-zinc-200 flex flex-col">
+    <div className="flex h-screen bg-zinc-50 text-zinc-900 font-sans flex-col md:flex-row">
+      {/* Mobile Header */}
+      <header className="md:hidden bg-white border-b border-zinc-200 p-4 flex items-center gap-3 shrink-0">
+        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
+          <Sparkles size={18} />
+        </div>
+        <h1 className="font-semibold text-lg tracking-tight">Free UGC Builder</h1>
+      </header>
+
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex w-64 bg-white border-r border-zinc-200 flex-col shrink-0">
         <div className="p-6 flex items-center gap-3">
           <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
             <Sparkles size={18} />
@@ -57,8 +65,8 @@ export default function App() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
-        <div className="max-w-6xl mx-auto p-8">
+      <main className="flex-1 overflow-auto pb-20 md:pb-0">
+        <div className="max-w-6xl mx-auto p-4 md:p-8">
           <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 10 }}
@@ -70,6 +78,28 @@ export default function App() {
           </motion.div>
         </div>
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-zinc-200 flex justify-around p-2 z-50 pb-safe">
+        <button
+          onClick={() => setActiveTab('photo')}
+          className={`flex flex-col items-center p-2 rounded-lg min-w-[80px] ${
+            activeTab === 'photo' ? 'text-indigo-600' : 'text-zinc-500 hover:text-zinc-900'
+          }`}
+        >
+          <ImageIcon size={20} />
+          <span className="text-xs mt-1 font-medium">UGC Photo</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('landing-page')}
+          className={`flex flex-col items-center p-2 rounded-lg min-w-[80px] ${
+            activeTab === 'landing-page' ? 'text-indigo-600' : 'text-zinc-500 hover:text-zinc-900'
+          }`}
+        >
+          <LayoutTemplate size={20} />
+          <span className="text-xs mt-1 font-medium">Landing Page</span>
+        </button>
+      </nav>
     </div>
   );
 }

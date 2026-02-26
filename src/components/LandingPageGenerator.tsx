@@ -136,7 +136,7 @@ ${selectedImage ? `10. I have generated 4 lifestyle images for this product. You
       `;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.1-pro-preview',
+        model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
           temperature: 0.9,
